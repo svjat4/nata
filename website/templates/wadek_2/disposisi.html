@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lembar Disposisi</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            border: 1px solid black;
+            padding: 20px;
+        }
+
+        .header,
+        .footer {
+            text-align: center;
+        }
+
+        .content {
+            margin-top: 20px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-weight: bold;
+        }
+
+        .section-title-1 {
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table td {
+            border: 1px solid black;
+            padding: 5px;
+        }
+
+        .table input[type="text"],
+        .table input[type="date"],
+        .table textarea {
+            width: 100%;
+            box-sizing: border-box;
+            border: none;
+        }
+
+        .table input[type="checkbox"] {
+            margin: 0 5px;
+        }
+
+        .signature {
+            margin-top: 30px;
+            text-align: right;
+        }
+
+        .signature .name {
+            font-weight: bold;
+        }
+
+        .section textarea {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            resize: vertical;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ url_for('static', filename='img/kop.png') }}" alt="Kop Surat" width="100%">
+        </div>
+
+        <div class="content">
+            <form id="disposisiForm" method="POST" action="{{ url_for('wadek.add_disposisi') }}">
+                <div class="section">
+                    <div class="mb-3 text-center">
+                        <div class="section-title-1">LEMBAR DISPOSISI</div>
+                        <label for="nomor_disposisi">Nomor</label>
+                        <input type="text" id="nomor_disposisi" name="nomor_disposisi" value="00/00/00">
+                    </div>
+                
+                    <table class="table table-borderless">
+                        <tr>
+                            <td>Terima Dari</td>
+                            <td>:</td>
+                            <td colspan="3"><input type="text" name="from_disposisi" value="Nama Penerima"></td>
+                        </tr>
+                        <tr>
+                            <td>No. Surat</td>
+                            <td>:</td>
+                            <td colspan="3"><input type="text" name="nomor_surat" value="00/00/00"></td>
+                        </tr>
+                        <tr>
+                            <td>Tanggal Surat</td>
+                            <td>:</td>
+                            <td colspan="3"><input type="date" name="tanggal_surat"></td>
+                        </tr>
+                        <tr>
+                            <td>Perihal</td>
+                            <td>:</td>
+                            <td colspan="3"><input type="text" name="perihal" value="Masukkan perihal"></td>
+                        </tr>
+                        <tr>
+                            <td>Lampiran</td>
+                            <td>:</td>
+                            <td colspan="3">
+                                <input type="radio" name="lampiran" value="Ada"> Ada
+                                <input type="radio" name="lampiran" value="Tidak Ada"> Tidak Ada
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">Surat Diterima</div>
+                    <table class="table">
+                        <tr>
+                            <td>Tanggal</td>
+                            <td>:</td>
+                            <td><input type="date" name="tanggal_diterima"></td>
+                            <td>Penerima</td>
+                            <td>:</td>
+                            <td><input type="text" name="penerima" value="nama penerima"></td>
+                        </tr>
+                        <tr>
+                            <td>Sifat</td>
+                            <td>:</td>
+                            <td colspan="4">
+                                <input type="radio" name="sifat" value="Biasa"> Biasa
+                                <input type="radio" name="sifat" value="Rahasia"> Rahasia
+                                <input type="radio" name="sifat" value="Sangat Rahasia"> Sangat Rahasia
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Klasifikasi</td>
+                            <td>:</td>
+                            <td colspan="4">
+                                <input type="radio" name="klasifikasi" value="Segera"> Segera
+                                <input type="radio" name="klasifikasi" value="Sangat Segera"> Sangat Segera
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Ditunjukkan Kepada</div>
+                    <table class="table">
+                        <tr>
+                            <td><input type="checkbox" name="ditunjukkan_wadek1" value="true"> Wadek 1</td>
+                            <td><input type="checkbox" name="ditunjukkan_wadek2" value="true"> Wadek 2</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Ditembuskan Kepada</div>
+                    <table class="table">
+                        <tr>
+                            <td><input type="checkbox" name="ditembuskan_ka_spm" value="true"> Ka SPM</td>
+                            <td><input type="checkbox" name="ditembuskan_ka_prodi_si" value="true"> Ka-Prodi S1-Sistem Informasi</td>
+                            <td><input type="checkbox" name="ditembuskan_ka_prodi_si" value="true"> Ka-Prodi S1-Teknologi Informasi</td>
+                            <td><input type="checkbox" name="ditembuskan_ka_prodi_si" value="true"> Ka-Prodi S1-Teknik Industri</td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" name="ditembuskan_ka_informatika" value="true"> Ka-Prodi S1-Informatika</td>
+                            <td><input type="checkbox" name="ditembuskan_ka_gkm" value="true"> Ka GKM</td>
+                            <td><input type="checkbox" name="ditembuskan_kabag_ak" value="true"> Kabag AK</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" name="ditembuskan_kabag_uk" value="true"> Kabag UK</td>
+                            <td><input type="checkbox" name="ditembuskan_ka_lab" value="true"> Ka. Lab</td>
+                            <td><input type="checkbox" name="ditembuskan_satpam" value="true"> Satpam</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Disposisi</div>
+                    <table class="table">
+                        <tr>
+                            <td><input type="checkbox" name="disposisi_ditindaklanjuti" value="true"> Ditindaklanjuti</td>
+                            <td><input type="checkbox" name="disposisi_siap_sambutan" value="true"> Siap memberi sambutan</td>
+                            <td><input type="checkbox" name="disposisi_siap_menghadiri" value="true"> Siap menghadiri</td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" name="disposisi_koordinasikan" value="true"> Koordinasikan</td>
+                            <td><input type="checkbox" name="disposisi_wakili_dekan" value="true"> Mohon Wakili Dekan</td>
+                            <td><input type="checkbox" name="disposisi_review_feasibility" value="true"> Untuk di review & Feasibilitynya</td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" name="disposisi_pertimbangkan" value="true"> Pertimbangkan</td>
+                            <td><input type="checkbox" name="disposisi_fasilitasi" value="true"> Fasilitasi bila memungkinkan</td>
+                            <td><input type="checkbox" name="disposisi_arsipkan" value="true"> Untuk Diketahui dan Arsipkan</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Catatan</div>
+                    <textarea name="catatan" rows="4"></textarea>
+                </div>
+
+                <div class="signature">
+                    <p>Yogyakarta, <input type="date" name="tanggal_ttd"></p>
+                    <p>Dekan</p>
+                    <img src="{{ url_for('static', filename='img/kop.png') }}" width="200px">
+                    <p class="name">Aris Wahyu Murdiyanto, S.Kom., M.Cs.</p>
+                </div>
+
+                <div>
+                    <button type="submit" name="cetak" class="btn btn-primary">Cetak</button>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>

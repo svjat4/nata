@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>FTTI - UNJAYA</title>
+    {% include 'base/mahasiswa/head.html' %}
+</head>
+
+<body>
+
+    <div class="wrapper">
+        {% include 'base/mahasiswa/sidebar.html' %}
+
+        <div class="main-panel">
+            <div class="main-header">
+                <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
+                    <div class="container-fluid">
+                        <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+
+                            <a href="{{ url_for('auth.logout') }}" style="color: black;">Keluar</a>
+
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="container">
+                <div class="page-inner">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card tb-peminjaman-mhs">
+                                <div class="card-header">
+                                    <h4 class="card-title">Riwayat Pengembalian</h4>
+                                </div>
+                                {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                <div id="alerts-container">
+                                    {% for category, message in messages %}
+                                    <div
+                                        class="alert {% if category == 'success' %}alert-success{% else %}alert-danger{% endif %} mb-5">
+                                        {{ message }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <script>
+                                    function removeAlert() {
+                                        let alertsContainer = document.getElementById(
+                                            'alerts-container');
+                                        if (alertsContainer) {
+                                            let alerts = alertsContainer
+                                                .getElementsByClassName('alert');
+                                            for (let i = 0; i < alerts.length; i++) {
+                                                let alert = alerts[i];
+                                                setTimeout(function () {
+                                                    alert.remove();
+                                                }, 3000);
+                                            }
+                                        }
+                                    }
+
+                                    removeAlert();
+                                </script>
+                                {% endif %}
+                                {% endwith %}
+                         
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table id="basic-datatables" class="display table table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>No</th>
+                                                    <th>TGL. Peminjaman</th>
+                                                    <th>Tunggakan</th>
+                                                    <th>1. Surat Peminjaman </th>
+                                                    <th>2. Surat Disposisi </th>
+                                                    <th>3. Verifikasi Wadek 2</th>
+                                                    <th>4. Verifikasi Opsdik</th>
+                                                    <th class="action">Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for data in results %}
+                                                <tr>
+                                                    <td>{{loop.index}}</td>
+                                                    <td>{{data.date}}</td>
+                                                    <td>{{data.tunggakan}}</td>
+                                                    <td>
+                                                        {% if data.surat == "-" %}
+                                                        <span style="color: rgb(90, 90, 54);"><b>Belum
+                                                                diunggah</b></span>
+                                                        {% else %}
+                                                        <span>
+                                                            <b>
+                                                                <a href="{{ data.surat }}">Unduh Surat</a>
+                                                            </b>
+                                                            {% if data.verifikasi1 == "Ditolak" %}
+                                                            <span style="color: red;">(Ditolak)</span>
+                                                            {% elif data.verifikasi1 == "Pending" %}
+                                                            <span style="color: yellowgreen;">(Menunggu konfirmasi)</span>
+                                                            {% else %}
+                                                            <span style="color: green;"><b>✓</b></span>
+                                                            {% endif %}
+                                                        </span>
+                                                        {% endif %}
+                                                    </td>
+
+                                                    <td>
+                                                        {% if data.disposisi == "-" %}
+                                                        <span style="color: rgb(90, 90, 54);"><b>Belum
+                                                                diunggah</b></span>
+                                                        {% else %}
+                                                        <span style="color: green;">
+                                                            <b>
+                                                                <a href="{{ data.disposisi }}">
+                                                                    Unduh Disposisi
+                                                                    <span style="color: green;"><b>✓</b></span>
+                                                                </a>
+                                                            </b>
+                                                        </span>
+                                                        {% endif %}
+                                                    </td>
+
+                                                    <td>
+                                                        {% if data.verifikasi2 == "Pending" %}
+                                                        <span style="color: rgb(90, 90, 54);"><b>Belum
+                                                                Terkonfirmasi</b></span>
+                                                        {% elif data.verifikasi2 == "Ditolak" %}
+                                                        <span style="color: red;">Ditolak</span>
+                                                        {% else %}
+                                                        <span style="color: green;"><b>Diterima</b> <span style="color: green;"><b>✓</b></span></span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if data.verifikasi3 == "Pending" %}
+                                                        <span style="color: rgb(90, 90, 54);"><b>Belum
+                                                                Terkonfirmasi</b></span>
+                                                        {% elif data.verifikasi3 == "Ditolak" %}
+                                                        <span style="color: red;">Ditolak</span>
+                                                        {% else %}
+                                                        <span style="color: green;"><b>Diterima</b> <span style="color: green;"><b>✓</b></span></span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-primary" data-toggle="modal"
+                                                            data-target="#largeModal" data-id="{{data.id}}"
+                                                            data-date="{{data.date}}" data-username="{{data.username}}"
+                                                            data-name="{{data.name}}"
+                                                            data-organizer="{{data.organizer}}"
+                                                            data-starttime="{{data.starttime}}"
+                                                            data-endtime="{{data.endtime}}" data-room="{{data.room}}"
+                                                            data-tools="{{ data.tools }}">
+                                                            <i class="fas fa-eye"></i> &nbsp;Detail
+                                                        </button>
+
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include 'base/mahasiswa/setting.html' %}
+
+        <!-- Large Modal -->
+        <div class="modal fade" id="largeModal" tabindex="-1" aria-labelledby="largeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="largeModalLabel">Rincian Peminjaman - <span
+                                id="header-data-name"></span></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered table-modal">
+                            <tr>
+                                <td colspan="3" style="text-align: center;">D A T A &nbsp;&nbsp;&nbsp; M A H A S I S W A
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Nomer Pokok Mahasiswa</td>
+                                <td>:</td>
+                                <td id="modal-data-username"></td>
+                            </tr>
+                            <tr>
+                                <td>Nama Lengkap</td>
+                                <td>:</td>
+                                <td id="modal-data-name"></td>
+                            </tr>
+                            <tr>
+                                <td>Program Studi</td>
+                                <td>:</td>
+                                <td id="modal-data-organizer"></td>
+                            </tr>
+                        </table>
+
+                        <table class="table table-bordered table-modal">
+                            <tr>
+                                <td colspan="3" style="text-align: center;">W A K T U &nbsp;&nbsp;&nbsp; P E M I N J A M
+                                    A N</td>
+                            </tr>
+                            <tr>
+                                <td>Tanggal Peminjaman</td>
+                                <td>:</td>
+                                <td id="modal-data-date"></td>
+                            </tr>
+                            <tr>
+                                <td>Jam Awal Peminjaman</td>
+                                <td>:</td>
+                                <td id="modal-data-starttime"></td>
+                            </tr>
+                            <tr>
+                                <td>Jam Berakhir Peminjaman</td>
+                                <td>:</td>
+                                <td id="modal-data-endtime"></td>
+                            </tr>
+                        </table>
+
+                        <table class="table table-bordered table-modal">
+                            <tr>
+                                <td colspan="3" style="text-align: center;">R I N C I A N &nbsp;&nbsp;&nbsp; P E M I N J
+                                    A M A N &nbsp;&nbsp;&nbsp; R U A N G A N &nbsp;&nbsp;&nbsp; & &nbsp;&nbsp;&nbsp; B A
+                                    R A N G</td>
+                            </tr>
+                            <tr>
+                                <td>Nama Ruangan</td>
+                                <td>:</td>
+                                <td id="modal-data-room"></td>
+                            </tr>
+                            <tr>
+                                <td>Nama Barang & Jumlah Peminjaman</td>
+                                <td>:</td>
+                                <td>
+                                    <ul id="modal-data-tools"></ul>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {% include 'base/mahasiswa/foot.html' %}
+
+</body>
+
+<script>
+    $('#konfirmasiModal2').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var dataId = button.data('id'); // Extract info from data-* attributes
+        var modal = $(this);
+        modal.find('.modal-body #dataId').val(dataId);
+    });
+
+    $('#submitAction2').on('click', function () {
+        var form = $('#confirmationForm2');
+        var dataId = form.find('#dataId').val();
+        var action = form.find('#actionSelect2').val();
+
+        console.log(action);
+
+        $.ajax({
+            type: 'POST',
+            url: '/konfirmasi-tiga',
+            data: {
+                dataId: dataId,
+                actionSelect2: action
+            },
+            success: function (response) {
+                $('#konfirmasiModal2').modal('hide');
+                if (response.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sukses!',
+                        text: 'Data berhasil terkonfirmasi.',
+                        showConfirmButton: false,
+                        timer: 1500 
+                    });
+
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Terjadi kesalahan.',
+                        showConfirmButton: false,
+                        timer: 1500 
+                    });
+                }
+            },
+            error: function () {
+                $('#konfirmasiModal2').modal('hide');
+                swal("Gagal!", "Terjadi kesalahan pada server.", "error");
+            }
+        });
+    });
+</script>
+
+<script>
+    $('#konfirmasiModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var dataId = button.data('id'); // Extract info from data-* attributes
+        var modal = $(this);
+        modal.find('.modal-body #dataId').val(dataId);
+    });
+
+    $('#submitAction').on('click', function () {
+        var form = $('#confirmationForm');
+        var dataId = form.find('#dataId').val();
+        var action = form.find('#actionSelect').val();
+
+        $.ajax({
+            type: 'POST',
+            url: '/konfirmasi-satu',
+            data: {
+                dataId: dataId,
+                actionSelect: action
+            },
+            success: function (response) {
+                $('#konfirmasiModal').modal('hide');
+                if (response.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sukses!',
+                        text: 'Data berhasil terkonfirmasi.',
+                        showConfirmButton: false,
+                        timer: 1500 
+                    });
+
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Terjadi kesalahan.',
+                        showConfirmButton: false,
+                        timer: 1500 
+                    });
+                }
+            },
+            error: function () {
+                $('#konfirmasiModal').modal('hide');
+                swal("Gagal!", "Terjadi kesalahan pada server.", "error");
+            }
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#largeModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var id = button.data('id');
+            var date = button.data('date');
+            var username = button.data('username');
+            var name = button.data('name');
+            var organizer = button.data('organizer');
+            var starttime = button.data('starttime');
+            var endtime = button.data('endtime');
+            var room = button.data('room');
+
+            // Retrieve data attributes from the button
+            var toolsData = button.data('tools');
+            var tools;
+
+            try {
+                var tools = JSON.parse(toolsData);
+                console.log("Parsed tools:", tools);
+            } catch (e) {
+                console.error("Invalid JSON:", toolsData);
+                tools = [];
+            }
+
+            var modal = $(this);
+            modal.find('#modal-data-id').text(id);
+            modal.find('#modal-data-date').text(date);
+            modal.find('#modal-data-username').text(username);
+            modal.find('#header-data-name').text(name);
+            modal.find('#modal-data-name').text(name);
+            modal.find('#modal-data-organizer').text(organizer);
+            modal.find('#modal-data-starttime').text(starttime);
+            modal.find('#modal-data-endtime').text(endtime);
+            modal.find('#modal-data-room').text(room);
+
+            // Clear and populate tools list
+            var toolsList = $('#modal-data-tools');
+            toolsList.empty(); // Clear existing list items
+            toolsData.forEach(function (tool) {
+                toolsList.append('<li>' + tool.name + ' =; ' + tool.capacity + ' Item' + '</li>');
+            });
+        });
+    });
+</script>
+
+<style>
+    .modal-lg {
+        max-width: 80%;
+    }
+
+    .table-modal tr td:first-child {
+        font-weight: bold;
+    }
+
+    .table-modal tr td {
+        padding: 8px 15px;
+    }
+
+    .table-modal tr td:nth-child(2) {
+        width: 10px;
+        text-align: center;
+    }
+</style>
+
+</html>

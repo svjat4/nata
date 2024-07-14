@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>FTTI - UNJAYA</title>
+    {% include 'base/mahasiswa/head.html' %}
+</head>
+
+<body>
+
+    <div class="wrapper">
+        {% include 'base/mahasiswa/sidebar.html' %}
+
+        <div class="main-panel">
+            <div class="main-header">
+                <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
+                    <div class="container-fluid">
+                        <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+
+                            <a href="{{ url_for('auth.logout') }}" style="color: black;">Keluar</a>
+
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="container">
+                <div class="page-inner">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Form Pengembalian Alat dan Ruangan</div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <form method="POST" action="{{ url_for('students.konfirmasi_pengembalian_mhs') }}">
+                                                {% if booked_room %}
+                                                <input type="hidden" name="dataId" value="{{ booked_room.id }}">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label for="roomSelect">Ruangan</label>
+                                                            <input type="text" class="form-control" name="roomSelect"
+                                                                id="roomSelect"
+                                                                value="{{ booked_room.room_relationship.name }}"
+                                                                readonly>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="startDate">Tanggal Peminjaman</label>
+                                                            <input type="date" class="form-control" name="startDate"
+                                                                id="startDate" value="{{ booked_room.date }}" readonly>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="endDate">Tanggal Pengembalian</label>
+                                                            <input type="date" class="form-control" name="endDate"
+                                                                id="endDate" readonly>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    {% if booked_tools|length > 0 %}
+                                                    <label for="toolSelect">Pengembalian Alat dan Jumlah
+                                                        Peminjaman</label>
+                                                    {% endif %}
+                                                    <div id="tool-select-container">
+                                                        {% for booked_tool in booked_tools %}
+                                                        <div class="d-flex mb-2 tool-row">
+                                                            <select class="form-control tool-select" name="tools[]"
+                                                                disabled>
+                                                                {% for tool in tools %}
+                                                                <option value="{{ tool.id }}"
+                                                                    {% if tool.id == booked_tool.tool_id %}selected{% endif %}>
+                                                                    {{ tool.name }}
+                                                                </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                            <input type="hidden" name="tools[]"
+                                                                value="{{ booked_tool.tool_id }}">
+                                                            <input type="number"
+                                                                class="form-control ml-2 ms-2 tool-quantity"
+                                                                name="quantities[]" value="{{ booked_tool.quantity }}"
+                                                                placeholder="Quantity" min="1" readonly>
+                                                        </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" value=""
+                                                        id="confirmationCheckbox">
+                                                    <label class="form-check-label" for="confirmationCheckbox">
+                                                        Saya menyatakan barang yang saya kembalikan lengkap
+                                                    </label>
+                                                </div>
+
+                                                <div style="padding: 1%;">
+                                                    <button class="btn btn-success" id="submitButton"
+                                                        disabled>Kembalikan</button>
+                                                </div>
+                                                {% elif booked_room1 %}
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <p>Proses peminjaman barang sedang dilakukan.</p>
+                                                    </div>
+                                                </div>
+                                                {% elif booked_room2 %}
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <p>Anda sedang melakukan peminjaman.</p>
+                                                    </div>
+                                                </div>
+                                                {% elif booked_room3 %}
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <p>Proses pengembalian sedang berlangsung.</p>
+                                                    </div>
+                                                </div>
+                                                {% elif booked_room4 %}
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <p>Tidak ada peminjaman.</p>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                                
+                                            </form>
+
+                                            <script>
+                                                document.getElementById('confirmationCheckbox').addEventListener(
+                                                    'change',
+                                                    function () {
+                                                        document.getElementById('submitButton').disabled = !this
+                                                            .checked;
+                                                    });
+                                            </script>
+
+                                            <script>
+                                                document.addEventListener('DOMContentLoaded', function () {
+                                                    const endDateField = document.getElementById('endDate');
+                                                    const today = new Date().toISOString().split('T')[0];
+                                                    endDateField.value = today;
+                                                });
+                                            </script>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        {% include 'base/mahasiswa/setting.html' %}
+
+    </div>
+
+    {% include 'base/mahasiswa/foot.html' %}
+
+</body>
+
+</html>

@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>FTTI - UNJAYA</title>
+  <style>
+    .card-action {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-action .note p {
+      color: red;
+      margin: 0;
+    }
+
+    .card-action .buttons {
+      display: flex;
+    }
+
+    .card-action .buttons .btn {
+      margin-left: 10px;
+    }
+  </style>
+  {% include 'base/mahasiswa/head.html' %}
+</head>
+
+<body>
+
+  <div class="wrapper">
+    {% include 'base/mahasiswa/sidebar.html' %}
+
+    <div class="main-panel">
+      <div class="main-header">
+        <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
+          <div class="container-fluid">
+            <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+
+              <a href="{{ url_for('auth.logout') }}" style="color: black;">Keluar</a>
+
+            </ul>
+          </div>
+        </nav>
+      </div>
+
+      <div class="container">
+        <div class="page-inner">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card">
+                {% if isUsed %}
+                <div class="card-header">
+                  <div class="card-title">Pemberitahuan</div>
+                </div>
+                <div class="card-body">
+                  Sedang ada proses peminjaman yang berlangsung
+                </div>
+                {% elif isUsed1 %}
+                <div class="card-header">
+                  <div class="card-title">Pemberitahuan</div>
+                </div>
+                <div class="card-body">
+                  Anda sedang melakukan peminjaman
+                </div>
+                {% elif isUsed2 %}
+                <div class="card-header">
+                  <div class="card-title">Pemberitahuan</div>
+                </div>
+                <div class="card-body">
+                  Sedang ada proses pengembalian barang pinjaman
+                </div>
+                {% else %}
+                <div class="card-header">
+                  <div class="card-title">Form peminjaman alat dan ruangan</div>
+                </div>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div id="alerts-container">
+                  {% for category, message in messages %}
+                  <div class="alert {% if category == 'success' %}alert-success{% else %}alert-danger{% endif %} mb-5">
+                    {{ message }}
+                  </div>
+                  {% endfor %}
+                </div>
+                <script>
+                  function removeAlert() {
+                    let alertsContainer = document.getElementById(
+                      'alerts-container');
+                    if (alertsContainer) {
+                      let alerts = alertsContainer
+                        .getElementsByClassName('alert');
+                      for (let i = 0; i < alerts.length; i++) {
+                        let alert = alerts[i];
+                        setTimeout(function () {
+                          alert.remove();
+                        }, 3000);
+                      }
+                    }
+                  }
+
+                  removeAlert();
+                </script>
+                {% endif %}
+                {% endwith %}
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-12 ">
+                      <form method="post" enctype="multipart/form-data" action="{{ url_for('students.add_peminjaman') }}">
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label for="roomSelect">Pilih Ruangan <span style="color: red;">*</span></label>
+                              <select class="form-control" id="roomSelect" name="room">
+                                {% for room in rooms %}
+                                <option value="{{ room.id }}">{{ room.name }}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-4">
+                            <div class="form-group">
+                              <label for="starttime">Jam Awal Peminjaman <span style="color: red;">*</span></label>
+                              <input type="time" class="form-control" name="starttime" id="starttime" required>
+                            </div>
+                          </div>
+                          <div class="col-md-4">
+                            <div class="form-group">
+                              <label for="endtime">Jam Akhir Peminjaman <span style="color: red;">*</span></label>
+                              <input type="time" class="form-control" name="endtime" id="endtime" required>
+                            </div>
+                          </div>
+                          <div class="col-md-4">
+                            <div class="form-group">
+                              <label for="date">Tanggal Peminjaman <span style="color: red;">*</span></label>
+                              <input type="date" class="form-control" name="date" id="date" required>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label for="peminjaman">Surat Peminjaman <span style="color: red;">*</span></label>
+                              <input type="file" class="form-control" name="peminjaman" id="peminjaman" required>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="" id="peminjamanAlatCheckbox">
+                          <label class="form-check-label" for="peminjamanAlatCheckbox">
+                              Apakah Anda ingin melakukan peminjaman alat?
+                          </label>
+                      </div>
+                      <div class="form-group mt-3" id="toolSelectContainer" style="display: none;">
+                          <label for="toolSelect">Pilih alat dan jumlah peminjaman</label>
+                          <div id="tool-select-container">
+                              <div class="d-flex mb-2 tool-row">
+                                  <select class="form-control tool-select" name="tools[]" disabled>
+                                      <option value="" data-stock="0" disabled selected>Pilih alat</option>
+                                      {% for tool in tools %}
+                                      <option value="{{ tool.id }}" data-stock="{{ tool.remaining_stock }}">{{ tool.name }}</option>
+                                      {% endfor %}
+                                  </select>
+                                  <input type="number" class="form-control ml-2 ms-2 tool-quantity" name="quantities[]"
+                                      placeholder="Jumlah Peminjaman" min="1" disabled>
+                                  <input type="text" class="form-control ml-2 ms-2 additional-info" name="additional_info[]"
+                                      value="Sisa Stok 0" readonly>
+                                  <button type="button" class="btn btn-primary ml-2 ms-2 add-tool-btn">+</button>
+                              </div>
+                          </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card-action">
+                    <div class="note">
+                      <p>Catatan : tidak perlu memilih alat jika tidak melakukan peminjaman alat</p>
+                    </div>
+                    <div class="buttons">
+                      <button class="btn btn-success">Submit</button>
+                    </div>
+                  </div>
+
+                  {% endif %}
+
+                </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {% include 'base/mahasiswa/setting.html' %}
+
+    </div>
+
+    {% include 'base/mahasiswa/foot.html' %}
+
+</body>
+
+<script>
+  $(document).ready(function () {
+    // Function to add a new tool dropdown
+    function addToolSelect() {
+      var toolSelectHtml = `
+        <div class="d-flex mb-2 tool-row">
+          <select class="form-control tool-select" name="tools[]">
+            <option value="" data-stock="0" disabled selected>Pilih alat</option>  
+            {% for tool in tools %}
+              <option value="{{ tool.id }}" data-stock="{{ tool.remaining_stock }}">{{ tool.name }}</option>
+            {% endfor %}
+          </select>
+          <input type="number" class="form-control ml-2 ms-2 tool-quantity" name="quantities[]" placeholder="Jumlah Peminjaman" min="1" disabled>
+          <input type="text" class="form-control ml-2 ms-2 additional-info" name="additional_info[]" value="Sisa Stok 0" readonly>
+          <button type="button" class="btn btn-danger ml-2 ms-2 remove-tool-btn">-</button>
+        </div>`;
+      $('#tool-select-container').append(toolSelectHtml);
+    }
+
+    // Function to update tool options and remaining stock
+    function updateToolOptions() {
+      var selectedTools = [];
+      $('.tool-select').each(function () {
+        selectedTools.push($(this).val());
+      });
+
+      $('.tool-select').each(function () {
+        var currentSelect = $(this);
+        var remainingStock = currentSelect.find('option:selected').data('stock');
+
+        currentSelect.find('option').each(function () {
+          if (selectedTools.includes($(this).val()) && $(this).val() !== currentSelect.val()) {
+            $(this).hide();
+          } else {
+            $(this).show();
+          }
+        });
+
+        currentSelect.closest('.tool-row').find('.additional-info').val('Sisa Stok ' + remainingStock);
+        currentSelect.closest('.tool-row').find('.tool-quantity').attr('max', remainingStock);
+
+        var quantityInput = currentSelect.closest('.tool-row').find('.tool-quantity');
+        if (currentSelect.val() !== '') {
+          quantityInput.removeAttr('disabled');
+        } else {
+          quantityInput.attr('disabled', 'disabled');
+        }
+      });
+    }
+
+    // Event handler for add tool button
+    $(document).on('click', '.add-tool-btn', function () {
+      addToolSelect();
+      updateToolOptions();
+    });
+
+    // Event handler for remove tool button
+    $(document).on('click', '.remove-tool-btn', function () {
+      $(this).closest('.tool-row').remove();
+      updateToolOptions();
+    });
+
+    // Event handler for changes in tool dropdown
+    $(document).on('change', '.tool-select', function () {
+      updateToolOptions();
+    });
+
+    // Initial setup
+    updateToolOptions();
+  });
+</script>
+
+<script>
+  const checkbox = document.getElementById('peminjamanAlatCheckbox');
+  const toolSelectContainer = document.getElementById('toolSelectContainer');
+
+  checkbox.addEventListener('change', function () {
+      if (this.checked) {
+          toolSelectContainer.style.display = 'block';
+          document.querySelectorAll('.tool-select, .tool-quantity').forEach(function (element) {
+              element.removeAttribute('disabled');
+          });
+      } else {
+          toolSelectContainer.style.display = 'none';
+          document.querySelectorAll('.tool-select, .tool-quantity').forEach(function (element) {
+              element.setAttribute('disabled', 'disabled');
+          });
+      }
+  });
+</script>
+
+</html>

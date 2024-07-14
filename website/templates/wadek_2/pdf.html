@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lembar Disposisi PDF</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+
+        .container {
+            width: 100%;
+            margin: auto;
+            border: 1px solid black;
+            padding: 20px;
+        }
+
+        .header,
+        .footer {
+            text-align: center;
+        }
+
+        .content {
+            margin-top: 20px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-weight: bold;
+        }
+
+        .section-title-1 {
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table td {
+            border: 1px solid black;
+            padding: 5px;
+        }
+
+        .table input[type="text"],
+        .table input[type="date"],
+        .table textarea {
+            width: 100%;
+            box-sizing: border-box;
+            border: none;
+        }
+
+        .table input[type="checkbox"] {
+            margin: 0 5px;
+        }
+
+        .signature {
+            margin-top: 30px;
+            text-align: right;
+        }
+
+        .signature .name {
+            font-weight: bold;
+        }
+
+        .section textarea {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            resize: vertical;
+        }
+    </style>
+    <style>
+        .checkmark {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 16px;
+            color: black;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ url_for('static', filename='img/kop.png', _external=True) }}" alt="Kop Surat" width="100%">
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <div class="text-center">
+                    <div class="section-title-1">LEMBAR DISPOSISI</div>
+                    <label>Nomor:</label> {{ data.nomor_disposisi }}
+                </div>
+
+                <table class="table">
+                    <tr>
+                        <td>Terima Dari:</td>
+                        <td>{{ data.from_disposisi }}</td>
+                    </tr>
+                    <tr>
+                        <td>No. Surat:</td>
+                        <td>{{ data.nomor_surat }}</td>
+                    </tr>
+                    <tr>
+                        <td>Tanggal Surat:</td>
+                        <td>{{ data.tanggal_surat }}</td>
+                    </tr>
+                    <tr>
+                        <td>Perihal:</td>
+                        <td>{{ data.perihal }}</td>
+                    </tr>
+                    <tr>
+                        <td>Lampiran:</td>
+                        <td>{{ data.lampiran }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Surat Diterima</div>
+                <table class="table">
+                    <tr>
+                        <td>Tanggal:</td>
+                        <td>{{ data.tanggal_diterima }}</td>
+                        <td>Penerima:</td>
+                        <td>{{ data.penerima }}</td>
+                    </tr>
+                    <tr>
+                        <td>Sifat:</td>
+                        <td colspan="3">{{ data.sifat }}</td>
+                    </tr>
+                    <tr>
+                        <td>Klasifikasi:</td>
+                        <td colspan="3">{{ data.klasifikasi }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Ditunjukkan Kepada</div>
+                <table class="table">
+                    <tr>
+                        <td>{{ '✓' if 'ditunjukkan_wadek1' in data else '×' }} Wadek 1</td>
+                        <td>{{ '✓' if 'ditunjukkan_wadek2' in data else '×' }} Wadek 2</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Ditembuskan Kepada</div>
+                <table class="table">
+                    <tr>
+                        <td>{{ '✓' if 'ditembuskan_ka_spm' in data else '×' }} Ka SPM</td>
+                        <td>{{ '✓' if 'ditembuskan_ka_prodi_si' in data else '×' }} Ka-Prodi S1-Sistem Informasi</td>
+                        <td>{{ '✓' if 'ditembuskan_ka_prodi_ti' in data else '×' }} Ka-Prodi S1-Teknologi Informasi</td>
+                        <td>{{ '✓' if 'ditembuskan_ka_prodi_ti' in data else '×' }} Ka-Prodi S1-Teknik Industri</td>
+                    </tr>
+                    <tr>
+                        <td>{{ '✓' if 'ditembuskan_ka_informatika' in data else '×' }} Ka-Prodi S1-Informatika</td>
+                        <td>{{ '✓' if 'ditembuskan_ka_gkm' in data else '×' }} Ka GKM</td>
+                        <td>{{ '✓' if 'ditembuskan_kabag_ak' in data else '×' }} Kabag AK</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>{{ '✓' if 'ditembuskan_kabag_uk' in data else '×' }} Kabag UK</td>
+                        <td>{{ '✓' if 'ditembuskan_ka_lab' in data else '×' }} Ka. Lab</td>
+                        <td>{{ '✓' if 'ditembuskan_satpam' in data else '×' }} Satpam</td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Disposisi</div>
+                <table class="table">
+                    <tr>
+                        <td>{{ '✓' if 'disposisi_ditindaklanjuti' in data else '×' }} Ditindaklanjuti</td>
+                        <td>{{ '✓' if 'disposisi_siap_sambutan' in data else '×' }} Siap memberi sambutan</td>
+                        <td>{{ '✓' if 'disposisi_siap_menghadiri' in data else '×' }} Siap menghadiri</td>
+                    </tr>
+                    <tr>
+                        <td>{{ '✓' if 'disposisi_koordinasikan' in data else '×' }} Koordinasikan</td>
+                        <td>{{ '✓' if 'disposisi_wakili_dekan' in data else '×' }} Mohon Wakili Dekan</td>
+                        <td>{{ '✓' if 'disposisi_review_feasibility' in data else '×' }} Untuk di review & Feasibilitynya</td>
+                    </tr>
+                    <tr>
+                        <td>{{ '✓' if 'disposisi_pertimbangkan' in data else '×' }} Pertimbangkan</td>
+                        <td>{{ '✓' if 'disposisi_fasilitasi' in data else '×' }} Fasilitasi bila memungkinkan</td>
+                        <td>{{ '✓' if 'disposisi_arsipkan' in data else '×' }} Untuk Diketahui dan Arsipkan</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Catatan</div>
+                <p>{{ data.catatan }}</p>
+            </div>
+
+            <div class="signature">
+                <p>Yogyakarta, {{ data.tanggal_ttd }}</p>
+                <p>Dekan</p>
+                <img src="{{ url_for('static', filename='img/kop.png', _external=True) }}" width="200px">
+                <p class="name">Aris Wahyu Murdiyanto, S.Kom., M.Cs.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

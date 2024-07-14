@@ -1,0 +1,64 @@
+<div class="sidebar" data-background-color="dark">
+    <div class="sidebar-logo">
+        <div class="logo-header" data-background-color="dark">
+            <a href="{{ url_for('admin.dashboard') }}" class="logo" style="color: white !important;">
+                <img src="https://library.unjaya.ac.id/wp-content/uploads/2021/09/cropped-ahmadd.png" alt="navbar brand"
+                    class="navbar-brand" height="20" /> &nbsp; &nbsp; FTTI UNJAYA
+            </a>
+            <div class="nav-toggle">
+                <button class="btn btn-toggle toggle-sidebar">
+                    <i class="gg-menu-right"></i>
+                </button>
+                <button class="btn btn-toggle sidenav-toggler">
+                    <i class="gg-menu-left"></i>
+                </button>
+            </div>
+            <button class="topbar-toggler more">
+                <i class="gg-more-vertical-alt"></i>
+            </button>
+        </div>
+    </div>
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
+            <ul class="nav nav-secondary">
+                <li class="nav-item active">
+                    <a href="{{ url_for('admin.dashboard') }}" class="collapsed" aria-expanded="false">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.user') }}">
+                        <i class="fas fa-users"></i>
+                        <p>Data Pengguna</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.ruangan') }}">
+                        <i class="fas fa-door-open"></i>
+                        <p>Data Ruangan</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.alat') }}">
+                        <i class="fas fa-toolbox"></i>
+                        <p>Data Alat</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.data_peminjaman') }}">
+                        <i class="fas fa-history"></i>
+                        <p>Riwayat Peminjaman</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.data_pengembalian') }}">
+                        <i class="fas fa-history"></i>
+                        <p>Riwayat Pengembalian</p>
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>

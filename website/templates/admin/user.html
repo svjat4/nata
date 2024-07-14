@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>FTTI - UNJAYA</title>
+    {% include 'base/admin/head.html' %}
+</head>
+
+<body>
+
+    <div class="wrapper">
+        {% include 'base/admin/sidebar.html' %}
+
+        <div class="main-panel">
+            <div class="main-header">
+                <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
+                    <div class="container-fluid">
+                        <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+
+                            <a href="{{ url_for('auth.logout') }}" style="color: black;">Keluar</a>
+
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="container">
+                <div class="page-inner">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title">Data Pengguna</h4>
+                                    <button class="btn btn-primary btn-tambah-user" data-toggle="modal"
+                                        data-target="#addUserModal">
+                                        + User
+                                    </button>
+                                </div>
+                                {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                <div id="alerts-container">
+                                    {% for category, message in messages %}
+                                    <div
+                                        class="alert {% if category == 'success' %}alert-success{% else %}alert-danger{% endif %} mb-5">
+                                        {{ message }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <script>
+                                    function removeAlert() {
+                                        let alertsContainer = document.getElementById(
+                                            'alerts-container');
+                                        if (alertsContainer) {
+                                            let alerts = alertsContainer
+                                                .getElementsByClassName('alert');
+                                            for (let i = 0; i < alerts.length; i++) {
+                                                let alert = alerts[i];
+                                                setTimeout(function () {
+                                                    alert.remove();
+                                                }, 3000);
+                                            }
+                                        }
+                                    }
+
+                                    removeAlert();
+                                </script>
+                                {% endif %}
+                                {% endwith %}
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table id="basic-datatables" class="display table table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>No</th>
+                                                    <th>NPM/NIP</th>
+                                                    <th>Nama</th>
+                                                    <th>Prodi</th>
+                                                    <th>Status</th>
+                                                    <th>Jabatan</th>
+                                                    <th>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for data in user %}
+                                                <tr>
+                                                    <td>{{loop.index}}</td>
+                                                    <td>{{data.user_relationship.username}}</td>
+                                                    <td>{{data.name}}</td>
+                                                    <td>{{data.organizer}}</td>
+                                                    <td>{{data.user_relationship.role}}</td>
+                                                    <td>{{data.position}}</td>
+                                                    <td>
+                                                        <button class="btn btn-edit" data-toggle="modal"
+                                                            data-target="#editModal" data-id="{{ data.id }}">
+                                                            <i class="fas fa-edit"></i> Edit
+                                                        </button>
+                                                        <button class="btn btn-delete" data-user-id="{{ data.user_id }}">
+                                                            <i class="fas fa-trash"></i> Delete
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- add -->
+        <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addUserModalLabel">Tambah Pengguna</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addUserForm" action="{{ url_for('admin.add_user') }}" method="POST">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="nama">Nama Lengkap</label>
+                                        <input type="text" class="form-control" name="nama" id="nama" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="prodi">Program Studi</label>
+                                        <select class="form-control" id="prodi" name="prodi" required>
+                                            <option value="">Pilih Prodi</option>
+                                            <option value="Informatika">Informatika</option>
+                                            <option value="Teknik Industri">Teknik Industri</option>
+                                            <option value="Teknologi Informasi">Teknologi Informasi</option>
+                                            <option value="Sistem Informasi">Sistem Informasi</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="role">Role</label>
+                                        <select class="form-control" id="role" name="role" required>
+                                            <option value="">Pilih Status</option>
+                                            <option value="Mahasiswa">Mahasiswa</option>
+                                            <option value="Dosen">Dosen</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="jabatan">Jabatan</label>
+                                        <select class="form-control" id="jabatan" name="jabatan" required>
+                                            <option value="">Pilih Jabatan</option>
+                                            <option value="Mahasiswa">Mahasiswa</option>
+                                            <option value="Dosen">Dosen</option>
+                                            <option value="Wakil Dekan 2">Wakil Dekan 2</option>
+                                            <option value="Staff Umum">Staff Umum</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="username">Username (NPP/NIP) </label>
+                                <input type="text" class="form-control" name="username" id="username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" class="form-control" name="password" id="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="margin-left: 90%;">Tambah</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- edit -->
+        <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel">Edit Data Pengguna</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editForm" action="{{ url_for('admin.update_user') }}" method="POST">
+
+                            <input type="hidden" id="editId" name="editId">
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="nama">Nama Lengkap</label>
+                                        <input type="text" class="form-control" name="name" id="editName" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="prodi">Program Studi</label>
+                                        <select class="form-control" id="editOrganizer" name="prodi" required>
+                                            <option value="">Pilih Prodi</option>
+                                            <option value="Informatika">Informatika</option>
+                                            <option value="Teknik Industri">Teknik Industri</option>
+                                            <option value="Teknologi Informasi">Teknologi Informasi</option>
+                                            <option value="Sistem Informasi">Sistem Informasi</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="role">Role</label>
+                                        <select class="form-control" id="editRole" name="role" disabled>
+                                            <option value="">Pilih Status</option>
+                                            <option value="Mahasiswa">Mahasiswa</option>
+                                            <option value="Dosen">Dosen</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="jabatan">Jabatan</label>
+                                        <select class="form-control" id="editPosition" name="jabatan" required>
+                                            <option value="">Pilih Jabatan</option>
+                                            <option value="Mahasiswa">Mahasiswa</option>
+                                            <option value="Dosen">Dosen</option>
+                                            <option value="Wakil Dekan 2">Wakil Dekan 2</option>
+                                            <option value="Staff Umum">Staff Umum</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="username">Username (NPP/NIP) </label>
+                                <input type="text" class="form-control" name="username" id="editUsername" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" class="form-control" name="password" id="editPassword">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="margin-left: 80%;">Simpan
+                                Perubahan</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include 'base/admin/setting.html' %}
+
+    </div>
+
+    {% include 'base/admin/foot.html' %}
+
+</body>
+
+<script>
+    $(document).ready(function () {
+
+        // addddddddddddddd
+
+        $('#addUserForm').submit(function(event) {
+            event.preventDefault();
+            var formData = $(this).serialize();
+
+            $.ajax({
+                url: "{{ url_for('admin.add_user') }}",
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sukses!',
+                        text: 'Akun berhasil ditambahkan.',
+                        showConfirmButton: false,
+                    });
+
+                    $('#addUserModal').modal('hide');
+
+                    setTimeout(function() {
+                        window.location.reload(); 
+                    }, 1500);
+                },
+                error: function(error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Terjadi kesalahan saat menambahkan akun.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            });
+        });
+
+        // editttttttttttttttt
+
+        $('.btn-edit').click(function () {
+            var userId = $(this).data('id');
+            $.ajax({
+                url: '/get-user-data/' + userId,
+                type: 'GET',
+                success: function (response) {
+                    $('#editId').val(response.id);
+                    $('#editUsername').val(response.user_relationship.username);
+                    $('#editName').val(response.name);
+                    $('#editOrganizer').val(response.organizer);
+                    $('#editRole').val(response.user_relationship.role);
+                    $('#editPosition').val(response.position);
+                },
+                error: function () {
+                    alert('Terjadi kesalahan saat mengambil data user.');
+                }
+            });
+        });
+
+        $('#editForm').submit(function (event) {
+            event.preventDefault();
+            var formData = $(this).serialize();
+            $.ajax({
+                url: '/update-user',
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sukses!',
+                        text: 'Data berhasil diperbarui.',
+                        showConfirmButton: false,
+                        timer: 1500 
+                    });
+
+                    $('#editModal').modal('hide');
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1500);
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Terjadi kesalahan saat menyimpan perubahan.',
+                        showConfirmButton: false,
+                        timer: 1500 
+                    });
+                }
+            });
+        });
+
+        // deleteeeeeeeeeeeeeee
+
+        $('.btn-delete').click(function() {
+                var userId = $(this).data('user-id');
+
+                console.log(userId);
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/delete-user/' + userId,
+                            type: 'DELETE',
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: 'User has been deleted.',
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 1500);
+                            },
+                            error: function(error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Failed to delete user.',
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+    });
+</script>
+
+</html>

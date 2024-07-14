@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>FTTI - UNJAYA</title>
+    {% include 'base/wadek_2/head.html' %}
+</head>
+
+<body>
+
+    <div class="wrapper">
+        {% include 'base/wadek_2/sidebar.html' %}
+
+        <div class="main-panel">
+            <div class="main-header">
+                <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
+                    <div class="container-fluid">
+                        <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+
+                            <a href="{{ url_for('auth.logout') }}" style="color: black;">Keluar</a>
+
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="container">
+                <div class="page-inner">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card tb-peminjaman-wadek">
+                                <div class="card-header">
+                                    <h4 class="card-title">Riwayat Peminjaman</h4>
+                                </div>
+                                {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                <div id="alerts-container">
+                                    {% for category, message in messages %}
+                                    <div
+                                        class="alert {% if category == 'success' %}alert-success{% else %}alert-danger{% endif %} mb-5">
+                                        {{ message }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <script>
+                                    function removeAlert() {
+                                        let alertsContainer = document.getElementById(
+                                            'alerts-container');
+                                        if (alertsContainer) {
+                                            let alerts = alertsContainer
+                                                .getElementsByClassName('alert');
+                                            for (let i = 0; i < alerts.length; i++) {
+                                                let alert = alerts[i];
+                                                setTimeout(function () {
+                                                    alert.remove();
+                                                }, 3000);
+                                            }
+                                        }
+                                    }
+
+                                    removeAlert();
+                                </script>
+                                {% endif %}
+                                {% endwith %}
+                                <div class="card-body">
+                                    {% if current_user.profile_relationship.position == "Staff Umum" %}
+                                    <div class="mb-4 d-flex justify-content-end">
+                                        <a class="btn btn-success" href="{{ url_for('wadek.disposisi') }}" target="_blank"> &nbsp;Buat Surat Disposisi </a>
+                                    </div>
+                                    {% endif %}
+                                    <div class="table-responsive">
+                                        <table id="basic-datatables" class="display table table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>No</th>
+                                                    <th>TGL. Peminjaman</th>
+                                                    <th>NPM</th>
+                                                    <th>Nama</th>
+                                                    <th>Prodi</th>
+                                                    <th>Tunggakan</th>
+                                                    <th>1. Surat Peminjaman </th>
+                                                    <th>2. Surat Disposisi </th>
+                                                    <th>3. Verifikasi Wadek 2</th>
+                                                    <th>4. Verifikasi Opsdik</th>
+                                                    <th class="action">Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for data in results %}
+                                                <tr>
+                                                    <td>{{loop.index}}</td>
+                                                    <td>{{data.date}}</td>
+                                                    <td>{{data.username}}</td>
+                                                    <td>{{data.name}}</td>
+                                                    <td>{{data.organizer}}</td>
+                                                    <td>{{data.tunggakan}}</td>
+
+                                                    <td>
+                                                        {% if data.surat == "-" %}
+                                                        <span style="color: rgb(90, 90, 54);"><b>Belum
+                                                                diunggah</b></span>
+                                                        {% else %}
+                                                        <span>
+                                                            <b>
+                                                                <a href="{{ data.surat }}">Unduh Surat</a>
+                                                            </b>
+                                                            {% if data.verifikasi1 == "Ditolak" %}
+                                                            <a href="#" style="color: red;" data-toggle="modal" data-target="#alasanPenolakanModal" onclick="setAlasanPenolakan('{{ data.komentar1 }}')"><b>(Ditolak)</b></a>
+                                                            {% elif data.verifikasi1 == "Pending" %}
+                                                            <span style="color: yellowgreen;">(Menunggu konfirmasi)</span>
+                                                            {% else %}
+                                                            <span style="color: green;"><b>✓</b></span>
+                                                            {% endif %}
+                                                        </span>
+                                                        {% endif %}
+                                                    </td>
+
+                                                    <td>
+                                                        {% if data.disposisi == "-" %}
+                                                        <span style="color: rgb(90, 90, 54);"><b>Belum
+                                                                diunggah</b></span>
+                                                        {% else %}
+                                                        <span style="color: green;">
+                                                            <b>
+                                                                <a href="{{ data.disposisi }}">
+                                                                    Unduh Disposisi
+                                                                    <span style="color: green;"><b>✓</b></span>
+                                                                </a>
+                                                            </b>
+                                                        </span>
+                                                        {% endif %}
+                                                    </td>
+
+                                                    <td>
+                                                        {% if data.verifikasi2 == "Pending" %}
+                                                        <span style="color: rgb(90, 90, 54);"><b>Belum
+                                                                Terkonfirmasi</b></span>
+                                                        {% elif data.verifikasi2 == "Ditolak" %}
+                                                            <a href="#" style="color: red;" data-toggle="modal" data-target="#alasanPenolakanModal1" onclick="setAlasanPenolakan1('{{ data.komentar2 }}')"><b>Ditolak</b></a>
+                                                        {% else %}
+                                                        <span style="color: green;"><b>Diterima</b> <span style="color: green;"><b>✓</b></span></span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if data.verifikasi3 == "Pending" %}
+                                                        <span style="color: rgb(90, 90, 54);"><b>Belum
+                                                                Terkonfirmasi</b></span>
+                                                        {% elif data.verifikasi3 == "Ditolak" %}
+                                                        <span style="color: red;"><b>Ditolak</b></span>
+                                                        {% else %}
+                                                        <span style="color: green;"><b>Diterima</b> <span style="color: green;"><b>✓</b></span></span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-primary" data-toggle="modal"
+                                                            data-target="#largeModal" data-id="{{data.id}}"
+                                                            data-date="{{data.date}}" data-username="{{data.username}}"
+                                                            data-name="{{data.name}}"
+                                                            data-organizer="{{data.organizer}}"
+                                                            data-starttime="{{data.starttime}}"
+                                                            data-endtime="{{data.endtime}}" data-room="{{data.room}}"
+                                                            data-tools="{{ data.tools }}">
+                                                            <i class="fas fa-eye"></i> &nbsp;Detail
+                                                        </button>
+
+                                                        <!-- STAFF UMUM -->
+                                                        {% if current_user.profile_relationship.position == "Staff Umum" %}
+                                                        {% if data.verifikasi1 == "Pending" %}
+                                                        <button class="btn btn-secondary" data-toggle="modal"
+                                                            data-target="#konfirmasiModal1" data-id="{{ data.id }}">
+                                                            <i class="fas fa-check-circle"></i> &nbsp;Konfirmasi
+                                                        </button>
+                                                        {% endif %}
+                                                        {% endif %}
+
+                                                        <!-- WADEK 2 -->
+                                                        {% if current_user.profile_relationship.position == "Wakil Dekan 2" %}
+                                                        {% if data.verifikasi1 == "Diterima" and data.verifikasi2 == "Pending"%}
+                                                        <button class="btn btn-secondary" data-toggle="modal"
+                                                            data-target="#konfirmasiModal" data-id1="{{ data.id }}">
+                                                            <i class="fas fa-check-circle"></i> &nbsp;Konfirmasi Surat
+                                                        </button>
+                                                        {% endif %}
+                                                        {% endif %}
+
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include 'base/wadek_2/setting.html' %}
+
+        <!-- Large Modal -->
+        <div class="modal fade" id="largeModal" tabindex="-1" aria-labelledby="largeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="largeModalLabel">Rincian Peminjaman - <span
+                                id="header-data-name"></span></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered table-modal">
+                            <tr>
+                                <td colspan="3" style="text-align: center;">D A T A &nbsp;&nbsp;&nbsp; M A H A S I S W A
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Nomer Pokok Mahasiswa</td>
+                                <td>:</td>
+                                <td id="modal-data-username"></td>
+                            </tr>
+                            <tr>
+                                <td>Nama Lengkap</td>
+                                <td>:</td>
+                                <td id="modal-data-name"></td>
+                            </tr>
+                            <tr>
+                                <td>Program Studi</td>
+                                <td>:</td>
+                                <td id="modal-data-organizer"></td>
+                            </tr>
+                        </table>
+
+                        <table class="table table-bordered table-modal">
+                            <tr>
+                                <td colspan="3" style="text-align: center;">W A K T U &nbsp;&nbsp;&nbsp; P E M I N J A M
+                                    A N</td>
+                            </tr>
+                            <tr>
+                                <td>Tanggal Peminjaman</td>
+                                <td>:</td>
+                                <td id="modal-data-date"></td>
+                            </tr>
+                            <tr>
+                                <td>Jam Awal Peminjaman</td>
+                                <td>:</td>
+                                <td id="modal-data-starttime"></td>
+                            </tr>
+                            <tr>
+                                <td>Jam Berakhir Peminjaman</td>
+                                <td>:</td>
+                                <td id="modal-data-endtime"></td>
+                            </tr>
+                        </table>
+
+                        <table class="table table-bordered table-modal">
+                            <tr>
+                                <td colspan="3" style="text-align: center;">R I N C I A N &nbsp;&nbsp;&nbsp; P E M I N J
+                                    A M A N &nbsp;&nbsp;&nbsp; R U A N G A N &nbsp;&nbsp;&nbsp; & &nbsp;&nbsp;&nbsp; B A
+                                    R A N G</td>
+                            </tr>
+                            <tr>
+                                <td>Nama Ruangan</td>
+                                <td>:</td>
+                                <td id="modal-data-room"></td>
+                            </tr>
+                            <tr>
+                                <td>Nama Barang & Jumlah Peminjaman</td>
+                                <td>:</td>
+                                <td>
+                                    <ul id="modal-data-tools"></ul>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STAFF UMUM 1 -->
+        <div class="modal fade" id="konfirmasiModal1" tabindex="-1" role="dialog"
+            aria-labelledby="konfirmasiModal1Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="konfirmasiModal1Label">Konfirmasi</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="confirmationForm" enctype="multipart/form-data">
+                            <input type="hidden" id="dataId" name="dataId">
+                            <div class="form-group">
+                                <label for="actionSelect">Konfirmasi Surat</label>
+                                <select class="form-control" id="actionSelect" name="actionSelect" required>
+                                    <option value="Diterima" selected>Konfirmasi</option>
+                                    <option value="Ditolak">Tolak</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="suratDisposisi">
+                                <label for="suratDisposisiFile">Surat Disposisi</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="suratDisposisiFile" name="suratDisposisiFile">
+                                    <label class="custom-file-label" for="suratDisposisiFile">Pilih file...</label>
+                                </div>
+                            </div>
+                            <div class="form-group" id="alasanPenolakan" style="display: none;">
+                                <label for="rejected1">Alasan Penolakan</label>
+                                <textarea class="form-control" id="rejected1" name="rejected1" rows="3"></textarea>
+                            </div>
+                            <div class="mt-2">
+                                <span style="color: red; padding-left: 2%;">* Konfirmasi hanya bisa dilakukan 1x</span>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-primary" id="submitAction">Konfirmasi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="alasanPenolakanModal" tabindex="-1" role="dialog" aria-labelledby="alasanPenolakanModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="alasanPenolakanModalLabel">Alasan Penolakan</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Alasan Penolakan: <span id="alasanPenolakanText"></span></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function setAlasanPenolakan(alasan) {
+                document.getElementById('alasanPenolakanText').innerText = alasan;
+            }
+        </script>
+
+        <!-- WADEK 2 -->
+        <div class="modal fade" id="konfirmasiModal" tabindex="-1" role="dialog"
+            aria-labelledby="konfirmasiModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="konfirmasiModalLabel">Konfirmasi</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="confirmationFormWadek" enctype="multipart/form-data">
+                            <input type="hidden" id="dataId1" name="dataId1">
+                            <div class="form-group">
+                                <label for="actionSelect">Konfirmasi Surat</label>
+                                <select class="form-control" id="actionSelect1" name="actionSelect" required>
+                                    <option value="Diterima" selected>Konfirmasi</option>
+                                    <option value="Ditolak">Tolak</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="alasanPenolakan1" style="display: none;">
+                                <label for="rejected2">Alasan Penolakan</label>
+                                <textarea class="form-control" id="rejected2" name="rejected2" rows="3"></textarea>
+                            </div>
+                            <div class="mt-2">
+                                <span style="color: red; padding-left: 2%;">* Konfirmasi hanya bisa dilakukan 1x</span>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-primary" id="submitAction1">Konfirmasi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="alasanPenolakanModal1" tabindex="-1" role="dialog" aria-labelledby="alasanPenolakanModal1Label"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="alasanPenolakanModal1Label">Alasan Penolakan</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Alasan Penolakan: <span id="alasanPenolakanText1"></span></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function setAlasanPenolakan1(alasan) {
+                console.log(alasan);
+                document.getElementById('alasanPenolakanText1').innerText = alasan;
+            }
+        </script>
+
+    </div>
+
+    {% include 'base/wadek_2/foot.html' %}
+
+</body>
+
+<!-- MODAL DETAIL -->
+<script>
+    $(document).ready(function () {
+        $('#largeModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var id = button.data('id');
+            var date = button.data('date');
+            var username = button.data('username');
+            var name = button.data('name');
+            var organizer = button.data('organizer');
+            var starttime = button.data('starttime');
+            var endtime = button.data('endtime');
+            var room = button.data('room');
+
+            var toolsData = button.data('tools');
+            var tools;
+
+            try {
+                var tools = JSON.parse(toolsData);
+                console.log("Parsed tools:", tools);
+            } catch (e) {
+                console.error("Invalid JSON:", toolsData);
+                tools = [];
+            }
+
+            var modal = $(this);
+            modal.find('#modal-data-id').text(id);
+            modal.find('#modal-data-date').text(date);
+            modal.find('#modal-data-username').text(username);
+            modal.find('#header-data-name').text(name);
+            modal.find('#modal-data-name').text(name);
+            modal.find('#modal-data-organizer').text(organizer);
+            modal.find('#modal-data-starttime').text(starttime);
+            modal.find('#modal-data-endtime').text(endtime);
+            modal.find('#modal-data-room').text(room);
+
+            var toolsList = $('#modal-data-tools');
+            toolsList.empty();
+            toolsData.forEach(function (tool) {
+                toolsList.append('<li>' + tool.name + ' =; ' + tool.capacity + ' Item' +
+                    '</li>');
+            });
+        });
+    });
+</script>
+
+<!-- MODAL STAFF UMUM -->
+<script>
+
+    $(document).ready(function () {
+        $('#actionSelect').val('Diterima');
+        $('#actionSelect').change(function () {
+            if ($(this).val() === 'Diterima') {
+                $('#suratDisposisi').show();
+                $('#alasanPenolakan').hide();
+            } else {
+                $('#suratDisposisi').hide();
+                $('#alasanPenolakan').show();
+            }
+        });
+    });
+
+    $('#konfirmasiModal1').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); 
+        var dataId = button.data('id'); 
+        var modal = $(this);
+        modal.find('.modal-body #dataId').val(dataId);
+    });
+
+    $('#submitAction').on('click', function () {
+        var form = $('#confirmationForm');
+        var dataId = form.find('#dataId').val();
+        var action = form.find('#actionSelect').val(); 
+
+        var rejected1 = form.find('#rejected1').val();
+        var suratDisposisiFile = form.find('#suratDisposisiFile')[0].files[0];
+
+        var formData = new FormData();
+        formData.append('dataId', dataId);
+        formData.append('actionSelect', action);
+        formData.append('rejected1', rejected1);
+        formData.append('suratDisposisiFile', suratDisposisiFile);
+
+        $.ajax({
+            type: 'POST',
+            url: '/konfirmasi-satu',
+            data: formData,
+            contentType: false, 
+            processData: false, 
+            success: function (response) {
+                $('#konfirmasiModal1').modal('hide');
+                if (response.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sukses!',
+                        text: 'Surat berhasil terkonfirmasi.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Terjadi kesalahan.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            },
+            error: function () {
+                $('#konfirmasiModal1').modal('hide');
+                swal("Gagal!", "Terjadi kesalahan pada server.", "error");
+            }
+        });
+    });
+</script>
+
+<!-- MODAL WADEK 2 -->
+<script>
+
+    $(document).ready(function () {
+        $('#actionSelect1').val('Diterima');
+        $('#actionSelect1').change(function () {
+            if ($(this).val() === 'Diterima') {
+                $('#alasanPenolakan1').hide();
+            } else {
+                $('#alasanPenolakan1').show();
+            }
+        });
+    });
+
+    $('#konfirmasiModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); 
+        var dataId = button.data('id1'); 
+        var modal = $(this);
+        modal.find('.modal-body #dataId1').val(dataId);
+    });
+
+    $('#submitAction1').on('click', function () {
+        var form = $('#confirmationFormWadek');
+        var dataId = form.find('#dataId1').val();
+        var action = form.find('#actionSelect1').val(); 
+        var rejected = form.find('#rejected2').val();
+
+        var formData = new FormData();
+        formData.append('dataId1', dataId);
+        formData.append('actionSelect1', action);
+        formData.append('rejected2', rejected);
+
+        $.ajax({
+            type: 'POST',
+            url: '/konfirmasi-dua',
+            data: formData,
+            contentType: false, 
+            processData: false, 
+            success: function (response) {
+                $('#konfirmasiModal1').modal('hide');
+                if (response.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sukses!',
+                        text: 'Surat berhasil terkonfirmasi.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Terjadi kesalahan.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            },
+            error: function () {
+                $('#konfirmasiModal1').modal('hide');
+                swal("Gagal!", "Terjadi kesalahan pada server.", "error");
+            }
+        });
+    });
+</script>
+
+<style>
+
+    .custom-file {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        margin-top: .3rem;
+    }
+
+    .custom-file-input {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        height: calc(2.25rem + 2px);
+        margin: 0;
+        opacity: 0;
+    }
+
+    .custom-file-label {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 1;
+        height: calc(2.25rem + 2px);
+        padding: .375rem .75rem;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+    }
+
+    .custom-file-input:focus ~ .custom-file-label,
+    .custom-file-input.has-focus ~ .custom-file-label {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .25);
+    }
+
+    .custom-file-input:lang(en) ~ .custom-file-label::after {
+        content: "Browse";
+    }
+
+    .custom-file-label::after {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 3;
+        display: block;
+        height: calc(2.25rem + 2px);
+        padding: .375rem .75rem;
+        line-height: 1.5;
+        color: #495057;
+        content: "Browse";
+        background-color: #e9ecef;
+        border-left: inherit;
+        border-radius: 0 .25rem .25rem 0;
+    }
+
+    .custom-file-label::after {
+        transition: background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+
+    .modal-lg {
+        max-width: 80%;
+    }
+
+    .table-modal tr td:first-child {
+        font-weight: bold;
+    }
+
+    .table-modal tr td {
+        padding: 8px 15px;
+    }
+
+    .table-modal tr td:nth-child(2) {
+        width: 10px;
+        text-align: center;
+    }
+</style>
+
+</html>
